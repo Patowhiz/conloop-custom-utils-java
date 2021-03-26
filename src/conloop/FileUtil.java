@@ -42,6 +42,15 @@ public class FileUtil {
         copyFolderORFile(sourceFolderPath, destinationFolderPath);
     }
 
+    
+     public static void copyFile(File sourceFile, File destinationFile) throws IOException {
+        copyFolderORFile(sourceFile, destinationFile);
+    }
+
+    public static void copyFolder(File sourceFolder, File destinationFolder) throws IOException {
+        copyFolderORFile(sourceFolder, destinationFolder);
+    }
+
     private static void copyFolderORFile(String sourceFolderPath, String destinationFolderPath) throws IOException {
         File destinationFolder = new File(destinationFolderPath);
         File sourceFolder = new File(sourceFolderPath);
