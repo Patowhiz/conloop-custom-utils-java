@@ -135,7 +135,6 @@ public class NetworkBridge {
                 } else {
                     results.setException(new CustomTaskException(CustomTaskException.RESPONSE_ERROR, "uknownresponse"));
                 }
-
             } catch (IOException ioe) {
                 LoggingUtil.e(NetworkBridge.class, "IO error response: " + ioe.getMessage());
                 results.setException(new CustomTaskException(CustomTaskException.NETWORK_ERROR, handleNetworkErrorResponse(con.getErrorStream())));
@@ -225,83 +224,13 @@ public class NetworkBridge {
 
     }
 
-    //todo. left here. Will be modified when the day of its need comes. Comment made on 07/01/2021 07:56 PM
-    private CustomTaskResult<String> postFile(String url, String localFilePathAndName, String serverFileName) {
-        CustomTaskResult<String> res = new CustomTaskResult<>();
-        java.net.HttpURLConnection con = bUseSecureConnection ? getHttpsUrlConn(url) : getHttpUrlConn(url);
-        try {
-            File file = new File(localFilePathAndName);
-            String lineEnd = "\r\n";
-            String twoHyphens = "--";
-            //String boundary = "***232404jkg4220957934FW**";
-            String boundary = Long.toHexString(System.currentTimeMillis()); // Just generate some unique random value.
-
-            int bytesRead, bytesAvailable, bufferSize;
-            byte[] buffer;
-            int maxBufferSize = 1 * 1024 * 1024;
-
-            // Use a post method.
-            con.setRequestMethod("POST");
-            con.setRequestProperty("Connection", "Keep-Alive");
-            con.setRequestProperty("Content-Type", "multipart/form-data;boundary=" + boundary);
-
-            //try posting the file first
-            try (FileInputStream fileInputStream = new FileInputStream(file)) {
-
-                try (DataOutputStream dos = new DataOutputStream(con.getOutputStream())) {
-
-                    dos.writeBytes(twoHyphens + boundary + lineEnd);
-                    dos.writeBytes("Content-Disposition: form-data; name=\"" + serverFileName + "\";"
-                            + " filename=\"" + file.getName() + "\"" + lineEnd);
-                    dos.writeBytes(lineEnd);
-                    // create a buffer of maximum size
-                    bytesAvailable = fileInputStream.available();
-                    bufferSize = Math.min(bytesAvailable, maxBufferSize);
-                    buffer = new byte[bufferSize];
-                    // read file and write it into form...
-                    bytesRead = fileInputStream.read(buffer, 0, bufferSize);
-                    while (bytesRead > 0) {
-                        dos.write(buffer, 0, bufferSize);
-                        bytesAvailable = fileInputStream.available();
-                        bufferSize = Math.min(bytesAvailable, maxBufferSize);
-                        bytesRead = fileInputStream.read(buffer, 0, bufferSize);
-                    }   //send multipart form data necesssary after file data...
-                    dos.writeBytes(lineEnd);
-                    dos.writeBytes(twoHyphens + boundary + twoHyphens + lineEnd);
-                    dos.flush();
-                }
-
-                try {
-                    res.setResult(getRequest(con));
-                } catch (IOException ex) {
-                    res.setException(new CustomTaskException(CustomTaskException.NETWORK_ERROR, handleNetworkErrorResponse(con.getErrorStream())));
-                }
-
-            } catch (MalformedURLException malex) {
-                res.setException(new CustomTaskException(CustomTaskException.NETWORK_ERROR, "MalformedURLException when sending file: " + malex.getMessage()));
-            } catch (IOException ioe) {
-                res.setException(new CustomTaskException(CustomTaskException.NETWORK_ERROR, "IOException when sending file: " + ioe.getMessage()));
-            }
-        } catch (ProtocolException ex) {
-            res.setException(new CustomTaskException(CustomTaskException.NETWORK_ERROR, "Protocal Exception when sending file: " + ex.getMessage()));
-        }
-
-        return res;
-
-    }
-
     public CustomTaskResult<File> getFile(String unEncodedUrlString, String destination) {
         CustomTaskResult<File> res = new CustomTaskResult<>();
         executorService.execute(() -> {
             try {
-
                 URL url = new URL(unEncodedUrlString);
                 URI uri = new URI(url.getProtocol(), url.getUserInfo(), url.getHost(), url.getPort(), url.getPath(), url.getQuery(), url.getRef());
-               
-                String str = uri.toASCIIString();
-                String newEncodedUrl = uri.toASCIIString();
-                res.setResult(getFile(new java.net.URL(newEncodedUrl), destination));
-
+                res.setResult(getFile(new java.net.URL(uri.toASCIIString()), destination));
             } catch (MalformedURLException ex1) {
                 res.setException(new CustomTaskException(CustomTaskException.EXCEPTION_ERROR, "MalformedURLException: " + ex1.getMessage()));
             } catch (IOException ex2) {
@@ -328,6 +257,84 @@ public class NetworkBridge {
         }
         out.close();
         return dstfile;
+    }
+
+    public CustomTaskResult<String> postFile(String url, String localFilePathAndName, String serverUsedFileName) {
+        return postFile(url, new File(localFilePathAndName), serverUsedFileName);
+    }
+
+    public CustomTaskResult<String> postFile(String url, File fileToUpload, String serverUsedFileName) {
+        CustomTaskResult<String> res = new CustomTaskResult<>();
+        postFile(url, fileToUpload, serverUsedFileName, res);
+        return res;
+    }
+
+    protected void postFile(String url, File fileToUpload, String serverUsedFileName, CustomTaskResult<String> res) {
+        executorService.execute(() -> {
+            try {
+                java.net.HttpURLConnection con = bUseSecureConnection ? getHttpsUrlConn(url) : getHttpUrlConn(url);
+                String lineEnd = "\r\n";
+                String twoHyphens = "--";
+                //String boundary = "***232404jkg4220957934FW**";
+                String boundary = Long.toHexString(System.currentTimeMillis()); // Just generate some unique random value.
+
+                int bytesRead, bytesAvailable, bufferSize;
+                byte[] buffer;
+                int maxBufferSize = 1 * 1024 * 1024;
+
+                // Use a post method.
+                con.setRequestMethod("POST");
+                con.setRequestProperty("Connection", "Keep-Alive");
+                con.setRequestProperty("Content-Type", "multipart/form-data;boundary=" + boundary);
+
+                //try posting the file first
+                try (FileInputStream fileInputStream = new FileInputStream(fileToUpload)) {
+
+                    try (DataOutputStream dos = new DataOutputStream(con.getOutputStream())) {
+                        dos.writeBytes(twoHyphens + boundary + lineEnd);
+                        //todo. this code is commented because in future we could want other post parameters 
+                        //to be sent with the posted file as shown. For now only "name" parameter is being added.
+                        //comment made on 01/04/2021 02:41 PM at Machakos house
+//                        dos.writeBytes("Content-Disposition: form-data; name=\"" + serverFileName + "\";"
+//                                + " filename=\"" + fileToUpload.getName() + "\"" + lineEnd);
+
+                        dos.writeBytes("Content-Disposition: form-data; name=\"" + serverUsedFileName + "\";" + lineEnd);
+                        dos.writeBytes(lineEnd);
+                        // create a buffer of maximum size
+                        bytesAvailable = fileInputStream.available();
+                        bufferSize = Math.min(bytesAvailable, maxBufferSize);
+                        buffer = new byte[bufferSize];
+                        // read file and write it into form...
+                        bytesRead = fileInputStream.read(buffer, 0, bufferSize);
+                        while (bytesRead > 0) {
+                            dos.write(buffer, 0, bufferSize);
+                            bytesAvailable = fileInputStream.available();
+                            bufferSize = Math.min(bytesAvailable, maxBufferSize);
+                            bytesRead = fileInputStream.read(buffer, 0, bufferSize);
+                        }   //send multipart form data necesssary after file data...
+                        dos.writeBytes(lineEnd);
+                        dos.writeBytes(twoHyphens + boundary + twoHyphens + lineEnd);
+                        dos.flush();
+                    }
+
+                    //left here
+                    String str = getRequest(con);
+                    res.setResult(str);
+
+                } catch (MalformedURLException malex) {
+                    res.setException(new CustomTaskException(CustomTaskException.NETWORK_ERROR, "MalformedURLException when sending file: " + malex.getMessage()));
+                } catch (IOException ioe) {
+                    res.setException(new CustomTaskException(CustomTaskException.NETWORK_ERROR, "IOException when sending file: " + ioe.getMessage()));
+                } catch (Exception ex) {
+                    res.setExceptionError(ex);
+                }
+            } catch (ProtocolException ex) {
+                res.setException(new CustomTaskException(CustomTaskException.NETWORK_ERROR, "Protocal Exception when sending file: " + ex.getMessage()));
+            } catch (Exception ex4) {
+                res.setExceptionError(ex4);
+            }
+        });
+
     }
 
     protected String handleNetworkErrorResponse(InputStream errorStream) {

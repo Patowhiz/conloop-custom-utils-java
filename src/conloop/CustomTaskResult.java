@@ -40,6 +40,18 @@ public class CustomTaskResult<TResult> extends CustomTask<TResult> {
         }
     }
 
+    public void setExceptionError(Exception exception) {
+        setException(new CustomTaskException(CustomTaskException.EXCEPTION_ERROR, exception.getMessage()));
+    }
+
+    public void setNetworkError(Exception exception) {
+        setException(new CustomTaskException(CustomTaskException.NETWORK_ERROR, exception.getMessage()));
+    }
+
+    public void setNetworkResponseError(Exception exception) {
+        setException(new CustomTaskException(CustomTaskException.RESPONSE_ERROR, exception.getMessage()));
+    }
+
     @Override
     public final boolean isComplete() {
         return complete;
