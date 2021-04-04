@@ -57,16 +57,14 @@ public class CustomFileUtil {
         copyFolderORFile(sourceFile, destinationFile);
     }
 
-    public static boolean copyFolder(File sourceFolder, File destinationFolder) throws IOException {
+    public static void copyFolder(File sourceFolder, File destinationFolder) throws IOException {
         copyFolderORFile(sourceFolder, destinationFolder);
-        return true;//todo
     }
 
-    private static boolean copyFolderORFile(String sourceFolderPath, String destinationFolderPath) throws IOException {
+    private static void copyFolderORFile(String sourceFolderPath, String destinationFolderPath) throws IOException {
         File destinationFolder = new File(destinationFolderPath);
         File sourceFolder = new File(sourceFolderPath);
         copyFolderORFile(sourceFolder, destinationFolder);
-        return true;//todo
     }
 
     private static void copyFolderORFile(File src, File dest) throws IOException {
@@ -74,8 +72,7 @@ public class CustomFileUtil {
         if (src.isDirectory()) {
 
             if (!dest.exists()) {
-                dest.mkdir();
-                //System.out.println("Directory copied from " + src + " to " + dest);
+                dest.mkdir(); 
             }//end inner if
 
             //list all the directory contents
@@ -135,7 +132,7 @@ public class CustomFileUtil {
     public static void openFileInAnotherApplication(File file) throws IOException {
         Desktop.getDesktop().open(file);
     }
-    
+
     public static boolean zipFile(String dirToZipName, String zipFileName) {
         return zipFile(new File(dirToZipName), zipFileName);
     }
@@ -202,6 +199,7 @@ public class CustomFileUtil {
 
     }
 
+    //todo. not yet tested. comment made on 02/04/2021
     public void unzipIt(String fileToUnZip, String destDirectory) throws IOException {
         //String fileToUnZip = "src/main/resources/unzipTest/compressed.zip";
         File destDir = new File(destDirectory);
