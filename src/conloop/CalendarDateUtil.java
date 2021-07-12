@@ -172,8 +172,16 @@ public class CalendarDateUtil {
         return getYear(getDate(date));
     }
 
+    public static int getMonthValue(java.sql.Date date) {
+        return getMonthValue(getDate(date));
+    }
+
     public static int getYear(java.time.LocalDate date) {
         return date.getYear();
+    }
+
+    public static int getMonthValue(java.time.LocalDate date) {
+        return date.getMonthValue();
     }
 
     public static int getTerm(java.sql.Date date) {
@@ -460,7 +468,7 @@ public class CalendarDateUtil {
     public static java.sql.Date getFormattedSqlDate(String theDateString) {
         return new java.sql.Date(getFormattedUtilDate(theDateString).getTime());
     }
-    
+
     /**
      * This function converts the format of dates for datetime picker into the
      * format dd/mm/yyyy
@@ -494,5 +502,91 @@ public class CalendarDateUtil {
 
         return converter;
     }
+
+    public static int getKenyaAcademicYear(java.sql.Date date) {
+        return getKenyaAcademicYear(getDate(date));
+    }
+
+    public static int getKenyaAcademicYear(java.time.LocalDate date) {
+        return getKenyaAcademicYear(date.getYear(), date.getMonthValue());
+    }
+
+    public static int getCurrentKenyaAcademicYear() {
+        return getKenyaAcademicYear(getCurrentYear(), getCurrentMonth());
+    }
+
+    public static int getKenyaFinancialYearFromTerm(int yearValue, int termId) {
+        if (yearValue == 2020) {
+            if (termId > 1) {
+                return 2021;
+            }
+        } else if (yearValue == 2021) {
+            if (termId > 2) {
+                return 2022;
+            }
+        }
+        return yearValue;
+    }
+
+    public static int getKenyaAcademicYear(int yearValue, int monthValue) {
+
+        if (yearValue == 2021) {
+            //code added on 08/07/2021 by Patowhiz at Kivani
+            //follows academic calendar for 2021 and 2022 cause by covid-19
+            if (monthValue > 0 && monthValue <= 4) {
+                yearValue = 2020;//term 2
+            } else if (monthValue >= 5 && monthValue <= 6) {
+                yearValue = 2020; //term 3 
+            }
+        } else if (yearValue == 2022) {
+            if (monthValue > 0 && monthValue <= 4) {
+                yearValue = 2021;//term 3
+            }
+        }
+
+        return yearValue;
+    }
+
+    public static int getKenyaAcademicTerm(java.sql.Date date) {
+        return getKenyaAcademicTerm(getDate(date));
+    }
+
+    public static int getKenyaAcademicTerm(java.time.LocalDate date) {
+        return getKenyaAcademicTerm(date.getYear(), date.getMonthValue());
+    }
+
+    public static int getCurrentKenyaAcademicTerm() {
+        return getKenyaAcademicTerm(getCurrentYear(), getCurrentMonth());
+    }
+
+    public static int getKenyaAcademicTerm(int yearValue, int monthValue) {
+        int termId = getCurrentTerm();
+
+        if (yearValue == 2021) {
+            //code added on 08/07/2021 by Patowhiz at Kivani
+            //follows academic calendar for 2021 and 2022 cause by covid-19
+            if (monthValue > 0 && monthValue <= 4) {
+                termId = 2;//term 2
+            } else if (monthValue >= 5 && monthValue <= 6) {
+                termId = 3; //term 3 
+            } else if (monthValue >= 7 && monthValue <= 9) {
+                termId = 1;//term 1
+            } else if (monthValue >= 10 && monthValue <= 12) {
+                termId = 2;//term 2
+            }//end if
+        } else if (yearValue == 2022) {
+            if (monthValue > 0 && monthValue <= 4) {
+                termId = 3;//term 3
+            } else if (monthValue >= 5 && monthValue <= 6) {
+                termId = 1; //term 1 
+            } else if (monthValue >= 7 && monthValue <= 9) {
+                termId = 2;//term 2
+            } else if (monthValue >= 10 && monthValue <= 12) {
+                termId = 3;//term 3
+            }//end if
+        }
+
+        return termId;
+    }//end method
 
 }//end class

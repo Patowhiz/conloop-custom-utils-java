@@ -6,10 +6,8 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.NoSuchElementException;
+import java.util.Scanner;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
@@ -72,7 +70,7 @@ public class CustomFileUtil {
         if (src.isDirectory()) {
 
             if (!dest.exists()) {
-                dest.mkdir(); 
+                dest.mkdir();
             }//end inner if
 
             //list all the directory contents
@@ -245,5 +243,31 @@ public class CustomFileUtil {
 
         return destFile;
     }
+
+    public static String readTextFile(String strfileNameAndPath) {
+        String strFileContents = null;
+        try {
+            File conFile = new File(strfileNameAndPath);
+            //if not exist. Return null
+            if (conFile.exists()) {
+                try (Scanner input = new Scanner(conFile)) {
+                    if (input.hasNext()) {
+                        strFileContents = input.next();
+                    }
+                }
+            }//end if
+
+        } catch (FileNotFoundException ex) {
+            System.err.println("Error file not found. Terminating : " + ex.getMessage());
+        } catch (NoSuchElementException elementException) {
+            System.err.println("File improperly formed. Terminating : " + elementException.getMessage());
+        } catch (IllegalStateException stateException) {
+            System.err.println("Error reading from file. Terminating : " + stateException.getMessage());
+        } catch (Exception ioex) {
+            System.err.println("IO Exception. Terminating : " + ioex.getMessage());
+        }
+
+        return strFileContents;
+    }//end method
 
 }//end class

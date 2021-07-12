@@ -291,14 +291,9 @@ public class NetworkBridge {
                 try (FileInputStream fileInputStream = new FileInputStream(fileToUpload)) {
 
                     try (DataOutputStream dos = new DataOutputStream(con.getOutputStream())) {
-                        dos.writeBytes(twoHyphens + boundary + lineEnd);
-                        //todo. this code is commented because in future we could want other post parameters 
-                        //to be sent with the posted file as shown. For now only "name" parameter is being added.
-                        //comment made on 01/04/2021 02:41 PM at Machakos house
-//                        dos.writeBytes("Content-Disposition: form-data; name=\"" + serverFileName + "\";"
-//                                + " filename=\"" + fileToUpload.getName() + "\"" + lineEnd);
-
-                        dos.writeBytes("Content-Disposition: form-data; name=\"" + serverUsedFileName + "\";" + lineEnd);
+                        dos.writeBytes(twoHyphens + boundary + lineEnd);                     
+                        dos.writeBytes("Content-Disposition: form-data; name=\"" + serverUsedFileName + "\";"
+                                + " filename=\"" + fileToUpload.getName() + "\"" + lineEnd);
                         dos.writeBytes(lineEnd);
                         // create a buffer of maximum size
                         bytesAvailable = fileInputStream.available();
