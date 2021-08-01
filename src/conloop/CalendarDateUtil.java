@@ -533,10 +533,8 @@ public class CalendarDateUtil {
         if (yearValue == 2021) {
             //code added on 08/07/2021 by Patowhiz at Kivani
             //follows academic calendar for 2021 and 2022 cause by covid-19
-            if (monthValue > 0 && monthValue <= 4) {
-                yearValue = 2020;//term 2
-            } else if (monthValue >= 5 && monthValue <= 6) {
-                yearValue = 2020; //term 3 
+            if (monthValue > 0 && monthValue <= 6) {
+                yearValue = 2020;//term 1 & 2
             }
         } else if (yearValue == 2022) {
             if (monthValue > 0 && monthValue <= 4) {
