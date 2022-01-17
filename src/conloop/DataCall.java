@@ -33,8 +33,8 @@ public class DataCall {
     public void setConnection(Connection conn) {
         this.conn = conn;
     }
-    
-    public boolean isReturnedLastResultSetNull(){
+
+    public boolean isReturnedLastResultSetNull() {
         return LAST_RESULT_SET_NULL;
     }
 
@@ -620,11 +620,17 @@ public class DataCall {
 //            this.parameterisedSqlCondition = strPreparedSqlCondition;
 //            this.columnValues = columnValues;
 //        }
-        public void addValueCondition(String strColumnName, Object objColumnValue, String strComparisonOperator, String strlogicalOperator) {
+        
+        
+        
+        public void addValueCondition(String strColumnName, Object objColumnValue, String strComparisonOperator, String strlogicalOperator, boolean bIsSqlArrayString) {
             String strSqlColumnValue;
 
-            //strings,dates have single quotes around their values for normal sql queries
-            if (objColumnValue instanceof String || objColumnValue instanceof java.sql.Date) {
+            if (bIsSqlArrayString) {
+                //for instance, WHERE IN (1,2,3)
+                strSqlColumnValue = String.valueOf(objColumnValue);
+            } else if (objColumnValue instanceof String || objColumnValue instanceof java.sql.Date) {
+                //strings,dates have single quotes around their values for normal sql queries
                 strSqlColumnValue = "'" + String.valueOf(objColumnValue) + "'";
             } else {
                 strSqlColumnValue = String.valueOf(objColumnValue);
@@ -642,11 +648,31 @@ public class DataCall {
         }
 
         public void addValueCondition(String strColumnName, Object objColumnValue, String strComparisonOperator) {
-            addValueCondition(strColumnName, objColumnValue, strComparisonOperator, "AND");
+            addValueCondition(strColumnName, objColumnValue, strComparisonOperator, "AND", false);
         }
 
         public void addValueCondition(String strColumnName, Object objColumnValue) {
             addValueCondition(strColumnName, objColumnValue, "=");
+        }
+
+        /**
+         * will concatenate the list of integers to a sql string 
+         * for instance, List of (1,2,3) will be WHERE IN (1,2,3)
+         * @param strColumnName
+         * @param lstColumnValues 
+         */
+        public void addValueCondition(String strColumnName, List<Integer> lstColumnValues) {
+            //concantenate the student ids into a sql like string for getting the transactions
+            String strSqlStudentIds = "";
+            for (int id : lstColumnValues) {
+                if (strSqlStudentIds.isEmpty()) {
+                    strSqlStudentIds = id + "";
+                } else {
+                    strSqlStudentIds = strSqlStudentIds + "," + id;
+                }
+            }//end for loop
+
+            addValueCondition(strColumnName, "(" + strSqlStudentIds + ")", "IN", "AND", true);
         }
 
         public void addColumnCondition(String strSqlColCondition, String strlogicalOperator, List<String> columnNames) {

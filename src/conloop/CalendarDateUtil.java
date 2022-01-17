@@ -225,7 +225,7 @@ public class CalendarDateUtil {
         return YearMonth.of(iYear, iMonth).lengthOfMonth();
     }
 
-    public static List<YearMonth> getListofLastMonths(int iYear, int iMonth, int iMonthsNum, boolean bIncludePassedParameterYearMonth) {
+    public static List<YearMonth> getListofLastYearMonths(int iYear, int iMonth, int iMonthsNum, boolean bIncludePassedParameterYearMonth) {
         List<YearMonth> yrMonths = new ArrayList<>();
 
         YearMonth stop = YearMonth.of(iYear, iMonth);
@@ -239,6 +239,22 @@ public class CalendarDateUtil {
         if (bIncludePassedParameterYearMonth) {
             yrMonths.add(YearMonth.of(iYear, iMonth));
         }
+
+        return yrMonths;
+    }
+
+    public static List<YearMonth> getListofNextYearMonths(int iYear, int iMonth, int iMonthsNum) {
+        List<YearMonth> yrMonths = new ArrayList<>();
+        YearMonth start = YearMonth.of(iYear, iMonth);
+        YearMonth stop = YearMonth.of(iYear, iMonth).plusMonths(iMonthsNum);
+
+        while (start.isBefore(stop)) {
+            yrMonths.add(YearMonth.of(start.getYear(), start.getMonthValue()));
+            start = start.plusMonths(1);
+        }
+        
+        //include the last year month also
+        yrMonths.add(stop);
 
         return yrMonths;
     }
