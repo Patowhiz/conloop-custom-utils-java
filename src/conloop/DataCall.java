@@ -19,8 +19,9 @@ import java.util.List;
  */
 public class DataCall {
 
-    private Connection conn;
-    private boolean LAST_RESULT_SET_NULL = false; //can be used to detect if maybe connection was lost and reconnect
+    protected Connection conn;
+    //can be used to detect if maybe connection was lost and reconnect
+    protected boolean LAST_RESULT_SET_NULL = false;
 
     public DataCall(Connection conn) {
         setConnection(conn);
@@ -620,9 +621,6 @@ public class DataCall {
 //            this.parameterisedSqlCondition = strPreparedSqlCondition;
 //            this.columnValues = columnValues;
 //        }
-        
-        
-        
         public void addValueCondition(String strColumnName, Object objColumnValue, String strComparisonOperator, String strlogicalOperator, boolean bIsSqlArrayString) {
             String strSqlColumnValue;
 
@@ -647,6 +645,10 @@ public class DataCall {
             columnNames.add(strColumnName);
         }
 
+        public void addValueCondition(String strColumnName, Object objColumnValue, String strComparisonOperator, String strlogicalOperator) {
+            addValueCondition(strColumnName, objColumnValue, strComparisonOperator, strlogicalOperator, false);
+        }
+
         public void addValueCondition(String strColumnName, Object objColumnValue, String strComparisonOperator) {
             addValueCondition(strColumnName, objColumnValue, strComparisonOperator, "AND", false);
         }
@@ -656,10 +658,11 @@ public class DataCall {
         }
 
         /**
-         * will concatenate the list of integers to a sql string 
-         * for instance, List of (1,2,3) will be WHERE IN (1,2,3)
+         * will concatenate the list of integers to a sql string for instance,
+         * List of (1,2,3) will be WHERE IN (1,2,3)
+         *
          * @param strColumnName
-         * @param lstColumnValues 
+         * @param lstColumnValues
          */
         public void addValueCondition(String strColumnName, List<Integer> lstColumnValues) {
             //concantenate the student ids into a sql like string for getting the transactions
