@@ -185,13 +185,19 @@ public class DataCall {
      *
      * @param tableName
      * @param strColToGetTheValueFrom
-     * @return maxValue if a record is found or noresult if no record found
+     * @param strWhereClause
+     * @return maxValue if a record is found or 0 if no record found
      */
-    public double getAnyMaxValue(String tableName, String strColToGetTheValueFrom) {
+    public double getAnyMaxValue(String tableName, String strColToGetTheValueFrom, String strWhereClause) {
         double maxValue = 0;
         ResultSet rs = null;
         try {
-            rs = getResultSet("SELECT MAX(" + strColToGetTheValueFrom + ") AS S FROM " + tableName);
+            String sql = "SELECT MAX(" + strColToGetTheValueFrom + ") AS S FROM " + tableName;
+
+            if (StringsUtil.isNotNullOrEmpty(strWhereClause)) {
+                sql = sql + " WHERE " + strWhereClause;
+            }
+            rs = getResultSet(sql);
             while (rs.next()) {
                 maxValue = rs.getDouble("S");
             }
@@ -286,13 +292,21 @@ public class DataCall {
     }
 
     public int computePriKeyInt(String tableName, String columnName) {
-        double result = getAnyMaxValue(tableName, columnName);
+        return computePriKeyInt(tableName, columnName, null);
+    }//end method
+
+    public int computePriKeyInt(String tableName, String columnName, String whereClause) {
+        double result = getAnyMaxValue(tableName, columnName, whereClause);
         //add 1 to the value returned
         return ((int) result + 1);
     }//end method
 
     public long computePriKeyLong(String tableName, String columnName) {
-        double result = getAnyMaxValue(tableName, columnName);
+        return computePriKeyLong(tableName, columnName, null);
+    }
+
+    public long computePriKeyLong(String tableName, String columnName, String whereClause) {
+        double result = getAnyMaxValue(tableName, columnName, whereClause);
         //add 1 to the value returned
         return ((long) result + 1);
     }//end method
@@ -350,11 +364,7 @@ public class DataCall {
             tryClosePreparedStatement(ps);
         }//end finally
 
-        if (h > 0) {
-            return 1;
-        } else {
-            return -1;
-        }
+         return h > 0 ? 1 : -1;
     }//end method
 
     /**
@@ -402,11 +412,7 @@ public class DataCall {
             tryClosePreparedStatement(ps);
         }//end finally
 
-        if (h > 0) {
-            return 1;
-        } else {
-            return -1;
-        }
+        return h > 0 ? 1 : -1;
 
     }//end method
 
