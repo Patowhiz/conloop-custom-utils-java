@@ -364,7 +364,7 @@ public class DataCall {
             tryClosePreparedStatement(ps);
         }//end finally
 
-         return h > 0 ? 1 : -1;
+        return h > 0 ? 1 : -1;
     }//end method
 
     /**
@@ -665,23 +665,25 @@ public class DataCall {
 
         /**
          * will concatenate the list of integers to a sql string for instance,
-         * List of (1,2,3) will be WHERE IN (1,2,3)
+         * List of (1,2,3) will be WHERE IN (1,2,3) condition will not be added
+         * please note the list should not be empty because WHERE IN () is an invalid SQL in derby
          *
          * @param strColumnName
          * @param lstColumnValues
          */
         public void addValueCondition(String strColumnName, List<Integer> lstColumnValues) {
-            //concantenate the student ids into a sql like string for getting the transactions
-            String strSqlStudentIds = "";
-            for (int id : lstColumnValues) {
-                if (strSqlStudentIds.isEmpty()) {
-                    strSqlStudentIds = id + "";
+
+            //concantenate the numbers into a sql like string for getting the transactions
+            String sqlColValues = "";
+            for (int colValues : lstColumnValues) {
+                if (sqlColValues.isEmpty()) {
+                    sqlColValues = colValues + "";
                 } else {
-                    strSqlStudentIds = strSqlStudentIds + "," + id;
+                    sqlColValues = sqlColValues + "," + colValues;
                 }
             }//end for loop
 
-            addValueCondition(strColumnName, "(" + strSqlStudentIds + ")", "IN", "AND", true);
+            addValueCondition(strColumnName, "(" + sqlColValues + ")", "IN", "AND", true);
         }
 
         public void addColumnCondition(String strSqlColCondition, String strlogicalOperator, List<String> columnNames) {

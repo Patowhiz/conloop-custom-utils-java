@@ -252,7 +252,7 @@ public class CalendarDateUtil {
             yrMonths.add(YearMonth.of(start.getYear(), start.getMonthValue()));
             start = start.plusMonths(1);
         }
-        
+
         //include the last year month also
         yrMonths.add(stop);
 
@@ -467,7 +467,7 @@ public class CalendarDateUtil {
             dt = dtf.parse(theDateString);
 
         } catch (java.text.ParseException ex) {
-            System.err.println("Error in date format : " + ex);
+            System.err.println("Error in date format : " + ex.getMessage());
         }
 
         return dt;
