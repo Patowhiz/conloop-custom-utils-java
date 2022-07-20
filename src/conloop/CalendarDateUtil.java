@@ -603,4 +603,28 @@ public class CalendarDateUtil {
         return termId;
     }//end method
 
+    /**
+     * Get the last date of year based on the passed year, starting month and day that is, 
+     * 11 months from the passed starting month
+     *
+     * @param year
+     * @param startingMonth
+     * @param startingDay
+     * @return the end date of the year based on the starting month
+     */
+    public static java.sql.Date getLastDateOfYearAsSQLDate(int year, int startingMonth, int startingDay) {
+        java.sql.Date fromDate = CalendarDateUtil.getSqlDate(year, startingMonth, 1);
+        return getLastDateOfYearAsSQLDate(fromDate);
+    }
+
+    /**
+     * Gets the last date of the year from the passed date. 
+     * This date is from the last calculated month, that is, 11 months from the month of the fromDate
+     * @param fromDate
+     * @return 
+     */
+    public static java.sql.Date getLastDateOfYearAsSQLDate(java.sql.Date fromDate) {
+        return CalendarDateUtil.getSqlDate(CalendarDateUtil.getMonthEndDate(fromDate.toLocalDate().plusMonths(11)));
+    }
+
 }//end class
